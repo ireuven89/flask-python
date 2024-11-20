@@ -1,0 +1,56 @@
+name: application
+
+services:
+  app:
+    image: app
+    build:
+      context: .
+      dockerfile: items/app.Dockerfile
+    ports:
+      - "5000:5000"
+    depends_on:
+      items-database:
+          condition: service_healthy
+    restart: always
+    environment:
+      AWS_SECRET_KEY: $AWS_SECRET_KEY
+      AWS_ACCESS_KEY: $AWS_ACCESS_KEY
+
+  users:
+    image: users
+    build:
+      context: .
+      dockerfile: users/users.Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      users-database:
+        condition: service_healthy
+    environment:
+      AWS_SECRET_KEY: $AWS_SECRET_KEY
+      AWS_ACCESS_KEY: $AWS_ACCESS_KEY
+    restart: always
+
+  items-database:
+    image: mysql/mysql-server:8.0
+    ports:
+      - "3306:3306"
+    expose:
+      - "3306"
+    hostname: items_db
+    environment:
+      MYSQL_DATABASE: items
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_ROOT_HOST: '%'
+
+  users-database:
+    image: mysql/mysql-server:8.0
+    ports:
+      - "3307:3306"
+    expose:
+      - "3307"
+    hostname: users_db
+    environment:
+      MYSQL_DATABASE: users
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_ROOT_HOST: '%'
