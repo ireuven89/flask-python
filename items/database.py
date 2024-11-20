@@ -1,6 +1,7 @@
 import logging
 import os
 from uuid import uuid4
+from pymongo import MongoClient
 
 import pymysql
 import pathlib
@@ -15,6 +16,9 @@ dbConfig = {
     'user': 'root',
     'password': 'admin',
 }
+
+mongo_client = MongoClient('mongo_db', port=27017)
+collections = ['test-collection', '', '', '']
 
 def connect_db():
     try:
@@ -33,6 +37,30 @@ def connect_db():
         logging.error("Unable migrate db  %s", repr(e))
         return 'failed to migrate DB: file not found'
 
+def connect_mongo():
+    try:
+        global mongo_db
+        mongo_db = mongo_client['example']
+        return 'connected'
+    except Exception as e:
+        logging.error("Unable to connect to database: %s", repr(e))
+        return 'failed to connect'
+
+def create_doc_item():
+    try:
+        collection = mongo_db['test-collection']
+        rec = {
+            'title': 'MongoDB and Python',
+            'description': 'MongoDB is no SQL database',
+            'tags': ['mongodb', 'database', 'NoSQL'],
+            'viewers': 104
+        }
+        result = collection.insert_one(rec)
+        logging.info(result.inserted_id)
+        return str(result.inserted_id)
+    except Exception as e:
+        logging.error("Unable to create item: %s", repr(e))
+        return 'failed to create item'
 
 def get_item(id):
     statement = 'select * from items where id = %s'

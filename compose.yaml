@@ -54,3 +54,17 @@ services:
       MYSQL_DATABASE: users
       MYSQL_ROOT_PASSWORD: admin
       MYSQL_ROOT_HOST: '%'
+
+  mongo:
+    image: mongo:8.0.3
+    ports:
+      - "27017:27017"
+    expose:
+      - "27017"
+    hostname: mongo_db
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: admin
+      ME_CONFIG_MONGODB_URL: "mongodb://root:example@mongo:27017/"
+
+

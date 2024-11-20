@@ -3,6 +3,7 @@ from flask import Flask, jsonify, request
 
 import database
 import s3_upload
+from database import create_doc_item
 
 logging.basicConfig(level=logging.INFO)
 app = Flask(__name__)
@@ -43,7 +44,7 @@ def hello_world():
 
 @app.route('/health', methods=['GET'])
 def healthcheck():
-    return jsonify({"health": "ok", "mysql": status})
+    return jsonify({"health": "ok", "mysql": status, "mongo": mongo_status})
 
 
 @app.route('/hello_world_post', methods=['POST'])
@@ -59,10 +60,16 @@ def upload():
      result = s3_upload.upload_file(file)
      return result
 
+@app.route('/items/mongo', methods=['POST'])
+def create_mongo_item():
+    result = create_doc_item()
+    return jsonify({"id": result})
+
 def items_get():
     name = request.args.get('name')
 
 
 if __name__ == '__main__':
     status = database.connect_db()
+    mongo_status = database.connect_mongo()
     app.run(debug=True, host='0.0.0.0', port=5000)
